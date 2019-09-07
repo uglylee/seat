@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="/static/js/html5.min.js"></script>
+      <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-body">
+        <form class="layui-form">
+
+
+
+           <div class="layui-form-item">
+              <label for="type" class="layui-form-label">
+                  <span class="x-red"></span>申请类型
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="type" name="type" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+           <div  class="layui-form-item">
+              <label for="count" class="layui-form-label">
+                  <span class="x-red"></span>数量
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="count" name="count" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+               <div  class="layui-form-item">
+              <label for="seat_id" class="layui-form-label">
+                  <span class="x-red"></span>退还工位
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="seat_id" name="seat_id" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+                 <div class="layui-form-item">
+              <label for="user" class="layui-form-label">
+                  <span class="x-red"></span>申请者
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="user" name="user" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+
+             <div class="layui-form-item">
+              <label for="user_id" class="layui-form-label">
+                  <span class="x-red"></span>申请人工号
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="user_id" name="user_id" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+                 <div class="layui-form-item">
+              <label for="department" class="layui-form-label">
+                  <span class="x-red"></span>部门
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="department" name="department" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+            <div class="layui-form-item">
+              <label for="send_msg" class="layui-form-label">
+                  <span class="x-red"></span>申请理由
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="send_msg" name="send_msg" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+            <div class="layui-form-item">
+              <label for="send_time" class="layui-form-label">
+                  <span class="x-red"></span>申请时间
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="send_time" name="send_time" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+            <div class="layui-form-item">
+              <label for="end_time" class="layui-form-label">
+                  <span class="x-red"></span>审批时间
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="end_time" name="end_time" required=""  disabled
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+                 <div class="layui-form-item">
+              <label for="end_time" class="layui-form-label">
+                  <span class="x-red"></span>审批意见
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="textarea" id="suggestion" name="suggestion" required=""
+                  autocomplete="off" class="layui-input">
+              </div>
+          </div>
+
+
+          <div class="layui-form-item">
+              <label for="L_repass" class="layui-form-label">
+              </label>
+              <button id = "agree" type="button" onclick = "agreeAC(1)" class="layui-btn layui-btn-radius layui-btn-normal" lay-filter="agree" lay-submit="">
+                  同意
+              </button>
+                <button  id = "disagree" type = "button" onclick = "agreeAC(0)"  class="layui-btn  layui-btn-radius layui-btn-danger" lay-filter="disagree" lay-submit="">
+                  拒绝
+              </button>
+          </div>
+      </form>
+    </div>
+
+   <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+
+    <script>
+
+        function agreeAC(obj){
+            sug = document.getElementById("suggestion").value;
+            var id = parent.data.id;
+            var objj = parent.data.objj;
+            var title;
+            if(obj == 1){
+                title = 'agree'
+            }
+            else{
+                title = 'disagree'
+            }
+              $.ajax({
+                        url: "{% url 'agreeMessage' %}",
+                        type: "post",
+                        contentType: 'application/json',
+                        dataType: "json",
+                        data: JSON.stringify({'id':id,'title':title,'suggestion':sug}),
+                        success: function (data) {
+                            if(data.obj == 1){
+
+                                objj.parents("tr").find(".td-status").html("<span style='color:forestgreen'>通过</span>");
+                                objj.parents("tr").find(".is_read").html('<span  style = "color:green" >已读</span>');
+                                {#systemBackSeat(id)#}
+                            }
+                            else{
+                                objj.parents("tr").find(".td-status").html("<span style='color:red'>未通过</span>");
+                                objj.parents("tr").find(".is_read").html('<span  style = "color:green" >已读</span>');
+
+                            }
+
+                                var index = parent.layer.getFrameIndex(window.name);
+                            //关闭当前frame
+                                parent.layer.close(index);
+                            return false;
+                        },
+                        error: function (data) {
+
+                                  var index = parent.layer.getFrameIndex(window.name);
+                                //关闭当前frame
+                                    parent.layer.close(index);
+                             return false;
+                        }
+                    });
+        }
+
+
+
+    </script>
+
+<script>
+                            var role = {{ role }}
+                        if(role != 0 ){
+                            document.getElementById("agree").style.display = "none";
+                                document.getElementById("disagree").style.display = "none";
+                            document.getElementById("suggestion").disabled = true
+
+                        }
+                        var id = parent.data.id;
+                        var count1 = document.getElementById("count")
+                        ,type = document.getElementById("type")
+                        ,user_id = document.getElementById("user_id")
+                        ,send_msg = document.getElementById("send_msg")
+                        ,send_time = document.getElementById("send_time")
+                        ,end_time = document.getElementById("end_time")
+                        , user = document.getElementById("user")
+                        , department = document.getElementById("department")
+                        ,seat_id = document.getElementById("seat_id"),
+                        suggestion = document.getElementById('suggestion');
+                                $.ajax({
+                            url: "{% url 'messageDetail' %}",
+                            type: "post",
+                            contentType: 'application/json',
+                            dataType: "json",
+                            data: JSON.stringify({'id':id}),
+                            success: function (data) {
+                                var msg = data.msg;
+                                var t = msg['type']
+                                if ( t.indexOf("退还工位") != -1){
+                                    seat_id.value = msg['seat_id']
+                                    count1.value= 1
+                                }
+                                else
+                                {
+                                     count1.value= msg['count']
+                                }
+                                if(msg['is_pass'] != 0){
+                                    document.getElementById('agree').style.display = "none"
+                                    document.getElementById('disagree').style.display = "none"
+                                    document.getElementById('suggestion').disabled = "true"
+
+                                }
+                                type.value = msg['type'];
+                                user_id.value = msg['send_user_id']
+                                send_msg.value = msg['send_msg']
+                                send_time.value = msg['send_time']
+                                end_time.value = msg['end_time']
+                                department.value = msg['department']
+                                user.value = msg['name']
+                                suggestion.value = msg['receive_suggestion']
+                            },
+                            error: function (data) {
+                            layer.msg(data.msg, {icon: 5});
+                            return false;
+                            }
+                            });
+</script>
+
+  </body>
+
+</html>

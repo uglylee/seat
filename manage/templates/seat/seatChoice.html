@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+<style>
+ .pop-box {
+ z-index: 9999999999999999; /*这个数值要足够大，才能够显示在最上层*/
+margin-bottom: 2px;
+display: none;
+position: absolute;
+ top: 0px;
+ left: 0px;
+ opacity: 0.7;
+ background-color: #000;
+ }
+
+    .pop-box-body {
+ clear: both;
+margin: 2px;
+padding: 2px;
+background-color: #000;
+}
+    #divCover {
+position: fixed;
+z-index: 9999;
+top: 0px;
+left: 0px;
+display: none;
+width: 100%;
+height: 100%;
+opacity: 0.7;
+background-color: #000;
+}
+</style>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+    <!--<script type="text/css" src="/static/lib/layui/css/layui.css"></script>-->
+    <link rel="stylesheet" href="/static/lib/layui2.5.4/css/layui.css">
+  </head>
+  <body>
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">首页</a>
+        <a href="">工位管理</a>
+        <a>
+          <cite>工位查看</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">&#xe9aa;</i></a>
+    </div>
+        <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+        </form>
+      </div>
+            <button class="layui-btn layui-btn-radius"  onclick="x_admin_show('申请工位','{% url 'seatApplication' %}',400,350)">申请工位
+        </button>
+         <button class="layui-btn layui-btn-normal layui-btn-radius"  onclick="x_admin_show('新增员工','{% url 'addUser' %}',500,300)">新增员工
+        </button>
+                    <form class="layui-input-inline" style = "float:right" >
+                     <button style="float:right;"  class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+                        <div class="layui-input-inline" style="float:right" >
+                        <input type="text" name="searchInfo"  placeholder="搜索座位、姓名、工号"  id = "search" autocomplete="on" class="layui-input">
+                    </div>
+
+                    </form>
+{#        表格#}
+<div  style = "top:60px">
+        <table style = "top:60px" class="layui-table"  lay-skin="line">
+        <thead>
+          <tr >
+            <th>楼层</th>
+            <th>已使用</th>
+            <th>待使用</th>
+            <th>未分配</th>
+            <th>总工位</th>
+            <th>利用率</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for oneFloor in floor %}
+                 <tr>
+                    <td>{{ oneFloor.floor }}F</td>
+                    <td>{{ oneFloor.have }}</td>
+                    <td>{{ oneFloor.nohave }}</td>
+                    <td>{{ oneFloor.wait }}</td>
+                    <td>{{ oneFloor.seatcount }}</td>
+                    <td>{{ oneFloor.bili }}</td>
+                    <td align = "center"  width = "6%" class="td-manage">
+                    <button  class="layui-btn  layui-btn-radius layui-btn" onclick="show_seat('{{ oneFloor.floor }}F工位','{% url 'seat-add' oneFloor.floor%}')" href="javascript:;" >查看
+                    </button>
+                    </td>
+                 </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+</div>
+</div>
+  <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+    <script>
+        layui.use(['layer','form'], function(){
+          var layer = layui.layer //弹层
+              ,form = layui.form;//表单
+//搜索
+        form.on('submit(sreach)', function(data){
+            searchInfo = document.getElementById('search').value;
+            $.ajax({
+                    url: "{% url 'searchSeat' %}",
+                    type: "post",
+                    contentType: 'application/json',
+                    dataType: "json",
+                    data: JSON.stringify({'searchInfo':searchInfo}),
+                    success: function (data) {
+                        var fl = data.obj[0].floor;
+                        var xx = data.obj[0].x;
+                        var yy = data.obj[0].y;
+                        show_seat(''+fl+'工位','seat-add/search='+fl+'='+xx+'='+yy+'/')
+                    },
+                    error: function (data) {
+                        layer.msg(data.responseJSON['msg']);
+                        return false;
+                    }
+                    });
+
+                return false;
+              });
+        });
+        function show_seat(title,url,w,h){
+            if (title == null || title == '') {
+                title=false;
+            };
+            if (url == null || url == '') {
+                url="404.html";
+            };
+            if (w == null || w == '') {
+                w=($(window).width()*0.7);
+            };
+            if (h == null || h == '') {
+                h=($(window).height()*0.97);
+            };
+            layer.open({
+                type: 2,
+                area: [w+'px', h +'px'],
+                fix: false, //不固定
+                maxmin: true,
+                shadeClose: true,
+                shade:0.4,
+                title: title,
+                content: url,
+                end: function () { //最后执行reload
+                    location.reload();
+                }
+
+            });
+        }
+    </script>
+  </body>
+</html>
+

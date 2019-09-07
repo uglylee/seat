@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>武汉研发中心工位系统</title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/lib/layui2.5.4/css/layui.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+    <style>
+     .bak {
+         {#background:#4E5465;#}
+         background:white;
+         color:black
+     }
+     .bak li a {
+         color:black
+     }
+    .bak li a:hover{
+        background: #000;
+        display: block;
+        color : white
+    }
+    </style>
+</head>
+<body>
+    <!-- 顶部开始 -->
+    <div class="container">
+        <div class="logo"><a href="{% url 'seatSystem' %}">武汉研发中心工位系统</a></div>
+        <div class="left_open">
+            <i title="展开左侧栏" class="iconfont">&#xe699;</i>
+        </div>
+
+        <ul class="layui-nav left fast-add" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="{% url 'seatSystem' %}">控制台</a>
+          </li>
+        </ul>
+        <ul class="layui-nav right" lay-filter="">
+          <li class="layui-nav-item">
+            <a href="javascript:;"><i class="iconfont">&#xe70b;  </i>{{ name }}</a>
+            <dl class="layui-nav-child"> <!-- 二级菜单 -->
+              <dd><a onclick="changePassword_show('重置密码','{% url 'changePasswd' %}')">重置密码</a></dd>
+            </dl>
+          </li>
+          <li class="layui-nav-item to-index"><a href="{% url 'logout' %}">注销</a></li>
+        </ul>
+    </div>
+    <!-- 顶部结束 -->
+    <!-- 中部开始 -->
+     <!-- 左侧菜单开始 -->
+    <div class="left-nav">
+      <div id="side-nav">
+        <ul  class = "bak" id="nav">
+            <li>
+                <a href="javascript:;">
+                    <i class="iconfont">&#xe6d7;</i>
+                    <cite>工位管理</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="{% url  'seatChoice' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite >工位查看</cite>
+                        </a>
+                    </li >
+                </ul>
+            </li>
+            <li  id = "systemConfig" style = "display:none">
+                <a href="javascript:;">
+                    <i class="iconfont">&#xe6ae;</i>
+                    <cite>系统设置</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+
+                    <li  id = "role-manage" style = "display: none;">
+                        <a _href="{% url  'admin-role' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>权限管理</cite>
+                        </a>
+                    </li >
+                                   <li  id = "memberList" style = "display: none;">
+                        <a _href="{% url  'user-manage' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>员工列表</cite>
+
+                        </a>
+                    </li >
+
+                    <li style ="display:none"  id = "departList">
+                        <a _href="{% url  'depart' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>部门列表</cite>
+
+                        </a>
+                    </li >
+                    <li   id = "seatInfo">
+                        <a _href="{% url  'seatInfo' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>工位信息</cite>
+
+                        </a>
+                    </li >
+                </ul>
+            </li>
+
+              <li>
+                <a href="javascript:;">
+                    <i class="iconfont">&#xe69b;</i>
+                    <cite>通知</cite>
+                    <i class="iconfont nav_right">&#xe697;</i>
+                </a>
+                <ul class="sub-menu">
+                    <li>
+                        <a _href="{% url  'messageList' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>消息列表</cite>
+                        </a>
+                    </li >
+                       <li>
+                        <a _href="{% url  'operateRecord' %}">
+                            <i class="iconfont">&#xe6a7;</i>
+                            <cite>操作记录</cite>
+                        </a>
+                    </li >
+                </ul>
+            </li>
+
+        </ul>
+      </div>
+    </div>
+    <!-- <div class="x-slide_left"></div> -->
+    <!-- 左侧菜单结束 -->
+    <!-- 右侧主体开始 -->
+    <div class="page-content">
+        <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+          <ul class="layui-tab-title">
+            <li class="home">统计</li>
+          </ul>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <iframe name = "rightFrame" src="{% url 'welcome' name user_id role department_id %}" frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="page-content-bg"></div>
+    <!-- 右侧主体结束 -->
+    <!-- 中部结束 -->
+    <!-- 底部开始 -->
+    <div    class="footer">
+        <div class="copyright">Copyright ©2019 Iflytek All Rights Reserved</div>
+    </div>
+    <!-- 底部结束 -->
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script src="/static/lib/layui2.5.4/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+	<script>
+
+     function changePassword_show(title,url,w,h){
+            if (title == null || title == '') {
+                title=false;
+            };
+            if (url == null || url == '') {
+                url="404.html";
+            };
+            if (w == null || w == '') {
+                w=($(window).width()*0.6);
+            };
+            if (h == null || h == '') {
+                h=($(window).height()-90);
+            };
+            layer.open({
+                type: 2,
+                area: [w+'px', h +'px'],
+                fix: false, //不固定
+                maxmin: true,
+                shadeClose: true,
+                shade:0.4,
+                title: title,
+                content: url
+            });
+    }
+    </script>
+    <script>
+         $().ready(function(){
+             let role = {{ role }};
+             let show_depart = {{ show_depart }}
+             var show_member = {{ show_member }}
+                if (role == 0) {
+                        document.getElementById("role-manage").style.display="block";
+                        document.getElementById("systemConfig").style.display="block";
+                 }
+                if (show_depart ==1 ){
+                        document.getElementById("systemConfig").style.display="block";
+                        document.getElementById("departList").style.display="block";
+                }
+                if (show_member ==1){
+                        document.getElementById("systemConfig").style.display="block";
+                        document.getElementById("memberList").style.display="block";
+                }
+            });
+    </script>
+    <script>
+        var role = {{ role }};
+        if (role == 0){
+            var msgCount= {{ msgCount }}
+            if (msgCount != 0){
+                layui.use('layer', function(){
+                    var layer = layui.layer;
+                         layer.msg('您有'+msgCount+'条新消息，请查看',{
+                         offset: 'r',
+                         btn:['查看消息','取消'],
+                          area:['220px', '90px']
+                          ,time: 5000
+                          ,yes:function(){
+                                      changePassword_show('消息','{% url 'messageList' %}',600,500)
+                            }
+                            , btn5:function(index){
+                                 layer.close(index);
+                            }
+                    });
+            });
+            }
+        }
+		</script>
+		
+
+</body>
+</html>

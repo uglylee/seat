@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+          <link rel="stylesheet" href="/static/lib/layui2.5.4/css/layui.css">
+    <link rel="stylesheet" href="/static/lib/layui/css/layui.css">
+
+
+
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="/static/js/html5.min.js"></script>
+      <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body >
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">首页</a>
+        <a href="">通知</a>
+        <a>
+          <cite>操作记录</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">&#xe9aa;</i></a>
+    </div>
+
+        <div class="x-body">
+      <div class="layui-row">
+        <form class="layui-form layui-col-md12 x-so">
+        </form>
+      </div>
+
+
+
+{#   <div class="layui-input-inline" style = "top:30px;float:right">#}
+
+            <hr class="layui-bg-gray" style ="background:black">
+
+    <div id = "report">
+
+{#            <div style = "height:30px"><cite style = "color:firebrick"> 赵李  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp新增工位 </cite> <cite style = "color:dodgerblue"> "22550"</cite>  <br> <cite style = "color:black">消费者HR </cite><div style = "float:right"> 2019-07-19 01:05:01</div></div><hr class="layui-bg-gray" style ="background:black">#}
+
+
+
+     </div>
+
+            <div style = " text-align:center;"><h3 id ="more"  onclick = more()>更多...</h3></div>
+ </div>
+
+<script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/xadmin.js"></script>
+<script>
+
+                            $.ajax({
+                                    url: "{% url 'getRecord' %}",
+                                    type: "get",
+                                    contentType: 'application/json',
+                                    dataType: "json",
+                                    {#data: JSON.stringify({'x': x, 'y': y, 'floor': 38}),#}
+                                    success: function (data) {
+                                    {#layer.msg('新增成功', {icon: 6});#}
+                                        var report = document.getElementById('report')
+                                        for (var i =  0 ; i< (data.obj).length;i++){
+                                            report.innerHTML += '<div style = "height:30px"><cite style = "color:firebrick"> '+data.obj[i].name+'  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'+data.obj[i].action+' </cite> <cite style = "color:dodgerblue"> "'+data.obj[i].seat_id+'"</cite>  <br> <cite style = "color:black">'+data.obj[i].department_id__name+' </cite><div style = "float:right"> '+data.obj[i].record_time+'</div></div><hr class="layui-bg-gray" style ="background:black">\n'
+                                        }
+                                        var uid = document.getElementById('more')
+                                        len = data.obj.length-1
+                                        uid.setAttribute('uuid',data.obj[len].id)
+                                          uid.setAttribute('uid',data.obj[0].id)
+                                    },
+                                    error: function (data) {
+                                    {#layer.msg('新增失败', {icon: 5});#}
+                                    return false;
+                                    }
+                            });
+
+                            function more(){
+                                var uuid = document.getElementById('more').getAttribute('uuid')
+                            $.ajax({
+                                    url: "{% url 'getRecord' %}",
+                                    type: "post",
+                                    contentType: 'application/json',
+                                    dataType: "json",
+                                    data: JSON.stringify({'uuid':uuid,'title':'getMore'}),
+                                    success: function (data) {
+                                    {#layer.msg('新增成功', {icon: 6});#}
+                                           if (data.obj.length > 0) {
+                                               var report = document.getElementById('report')
+                                               for (var i = 0; i < (data.obj).length; i++) {
+                                                   report.innerHTML += '<div style = "height:30px"><cite style = "color:firebrick"> ' + data.obj[i].name + '  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + data.obj[i].action + ' </cite> <cite style = "color:dodgerblue">"' + data.obj[i].seat_id + '"</cite>  <br> <cite style = "color:black">' + data.obj[i].department_id__name + ' </cite><div style = "float:right"> ' + data.obj[i].record_time + '</div></div><hr class="layui-bg-gray" style ="background:black">\n'
+                                               }
+                                               var uid = document.getElementById('more')
+                                               len = data.obj.length - 1
+
+                                               uid.setAttribute('uuid', data.obj[len].id)
+                                           }
+
+                                    },
+                                    error: function (data) {
+                                    {#layer.msg('新增失败', {icon: 5});#}
+                                    return false;
+                                    }
+                            });
+                            }
+
+
+                             function getNewRecord(){
+                                var uid = document.getElementById('more').getAttribute('uid')
+                            $.ajax({
+                                    url: "{% url 'getRecord' %}",
+                                    type: "post",
+                                    contentType: 'application/json',
+                                    dataType: "json",
+                                    data: JSON.stringify({'uuid':uid,'title':'getLarge'}),
+                                    success: function (data) {
+                                    {#layer.msg('新增成功', {icon: 6});#}
+                                        if (data.obj.length > 0) {
+                                            var report = document.getElementById('report')
+                                            for (var i = 0; i < (data.obj).length; i++) {
+
+                                                 report.innerHTML = '<div style = "height:30px"><cite style = "color:firebrick"> ' + data.obj[i].name + '  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp' + data.obj[i].action + ' </cite> <cite style = "color:dodgerblue">"' + data.obj[i].seat_id + '"</cite>  <br> <cite style = "color:black">' + data.obj[i].department_id__name + ' </cite><div style = "float:right"> ' + data.obj[i].record_time + '</div></div><hr class="layui-bg-gray" style ="background:black">\n' + report.innerHTML
+
+
+                                            }
+                                            var uid = document.getElementById('more')
+                                            uid.setAttribute('uid', data.obj[0].id)
+                                        }
+
+                                    },
+                                    error: function (data) {
+                                    {#layer.msg('新增失败', {icon: 5});#}
+                                    return false;
+                                    }
+                            });
+                            }
+                             setInterval("getNewRecord()",5000);
+
+</script>
+
+  </body>
+</html>

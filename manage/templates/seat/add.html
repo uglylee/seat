@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+
+
+  </head>
+
+  <body>
+    <div class="x-body">
+        <form class="layui-form">
+             <div class="layui-form-item">
+              <label for="seat_id" class="layui-form-label">
+                  <span class="x-red">*</span>座位
+              </label>
+              <div id= "nowSeat" class="layui-input-inline">
+                  <input placeholder="请输入座位号" type="text" id="seat_id" name="seat_id" required="" lay-verify="required"
+                  autocomplete="off" class="layui-input">
+
+              </div>
+          </div>
+        <label class="layui-form-label">工位类型</label>
+            <div class="layui-input-inline" style="width:150px;">
+                <select name="type" id="type" lay-verify="required">
+                    <option value="">请选择工位类型</option>
+                        <option value="0" >标准工位</option>
+                    <option value="1" >主管工位</option>
+                    <option value="2" >独立办公室</option>
+                 </select>
+            </div>
+          <div class="layui-form-item">
+              <label for="L_repass" class="layui-form-label">
+              </label>
+              <button  class="layui-btn" lay-filter="add" lay-submit="">
+                  新增
+              </button>
+          </div>
+      </form>
+    </div>
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+    <script>
+        layui.use(['form','layer'], function(){
+            $ = layui.jquery;
+            var form = layui.form
+            ,layer = layui.layer;
+             let data = parent.layer;
+          //自定义验证规则
+          form.verify({
+            nikename: function(value){
+              if(value.length < 5){
+                return '昵称至少得5个字符啊';
+              }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,repass: function(value){
+                if($('#L_pass').val()!=$('#L_repass').val()){
+                    return '两次密码不一致';
+                }
+            }
+          });
+
+          //监听提交
+          form.on('submit(add)', function(data){
+            var x = parent.x;
+              var y = parent.y
+              var floor = parent.floor
+            var obj = parent.objj;
+             var  seat_id = data.field.seat_id;
+              var type = data.field.type;
+            var func_list = parent.func;
+                 $.ajax({
+                        url: "{% url 'addSeat' %}",
+                        type: "post",
+                        contentType: 'application/json',
+                        dataType: "json",
+                        data:JSON.stringify({'seat_id':seat_id,'floor':floor,'x':x,'y':y,'type':type}),
+                        success: function (data) {
+                            var index = parent.layer.getFrameIndex(window.name)
+                              parent.layer.close(index);
+                        },
+                        error: function (data) {
+                            layer.msg(data.responseJSON['msg'], {icon: 5});
+                            return false;
+                        }
+                       });
+                    return false;
+          });
+        });
+    </script>
+  </body>
+
+</html>

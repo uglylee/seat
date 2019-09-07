@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html dir="ltr" lang="en-US">
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+
+
+
+
+
+	<title>工位系统</title>
+<meta name="author" content="www.xmoban.cn">
+<meta name="copyright" content="Copyright  www.xmoban.cn">
+	<!--- CSS --->
+	<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+        <script type="text/javascript" src="/static/lib/layui/css/layui.css"></script>
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+
+        <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+	<!--- Javascript libraries (jQuery and Selectivizr) used for the custom checkbox --->
+
+	<!--[if (gte IE 6)&(lte IE 8)]>
+		<script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="/static/js/selectivizr.js"></script>
+		<noscript><link rel="stylesheet" href="/static/css/fallback.css" /></noscript>
+	<![endif]-->
+
+	</head>
+
+	<body>
+		<div id="container">
+			<form action="{% url 'changePasswd' %}" method = 'POST'>
+				<div class="login">重置密码</div>
+				<div class="username-text">域账号:</div>
+				<div class="password-text">密码</div>
+				<div class="username-field">
+					<input type="text" name="domain_accounts" value="" placeholder="域账号"/>
+				</div>
+				<div class="password-field">
+					<input type="password" name="password" value="" placeholder="密码"/>
+				</div>
+
+				<input style="visibility:hidden;" type="checkbox"  name="remember-me" id="remember-me" /><label style = "visibility:hidden;" for="remember-me">Remember me</label>
+				<div  style = "visibility:hidden;" class="forgot-usr-pwd">Forgot <a href="#">username</a> or <a href="#">password</a>?</div>
+				<input type="submit" name="submit" value="Go" />
+			</form>
+		</div>
+		<div id="footer">
+			 工位系统 <a href="https://biosino.org/"></a>
+		</div>
+	</body>
+
+
+<script>
+
+
+
+
+var status = {{ status }}
+if (status==1)
+{
+    var msg= "{{ msg }}"
+    layui.use('layer', function () {
+        var layer = layui.layer;
+        layer.msg(msg,{'icon':6});
+    {##}
+    {#var index = parent.layer.getFrameIndex(window.name);#}
+    {#parent.layer.close(index);#}
+         setTimeout(function() {
+
+                    var index = parent.layer.getFrameIndex(window.name);
+     parent.layer.close(index);
+
+            },1000);
+
+            {#//语音消息#}
+            {#var url = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&text=" + encodeURI(msg);        // baidu#}
+            {#var n = new Audio(url);#}
+            {#n.src = url;#}
+            {#n.play();#}
+    });
+
+}
+ else if(status == 0){
+
+      var msg= "{{ msg }}"
+        layui.use('layer', function () {
+        var layer = layui.layer;
+        layer.msg(msg,{'icon':5});
+
+        {#setTimeout(closeNowWindow(),4000);#}
+        {#    setTimeout(function() {#}
+        {#            var index = parent.layer.getFrameIndex(window.name);#}
+        {#        parent.layer.close(index);#}
+        {#    },1000);#}
+      });
+
+}
+ function closeNowWindow(){
+
+         var index = parent.layer.getFrameIndex(window.name);
+     parent.layer.close(index);
+ }    {#</script>#}
+    </script>
+
+
+</html>

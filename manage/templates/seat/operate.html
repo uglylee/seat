@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+
+
+{#      右键菜单#}
+      <style type="text/css">
+			#rightMenu
+			{
+                	list-style: none;
+				background:white;
+                color:black;
+                {#background: #ebcccc;#}
+				border: solid 1px  darkslategray;
+                border-radius: 8px;
+				margin: 0px;
+				padding: 3px;
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				display: none;
+			}
+			#rightMenu li
+			{
+				border-bottom: solid 1px darkgrey;
+                 border-radius: 4px;
+			}
+
+           #rightMenu :hover{
+               cursor:crosshair;
+             background: black;
+               color:white;
+              border-radius: 6px;
+
+         }
+		</style>
+      <style>
+
+		html {
+			width: 100%;
+			height: 100%;
+		}
+
+		body {
+			text-align: center;
+			min-height: 100%;
+			font-size: 14px;
+		}
+
+		a {
+			display: inline-block;
+			margin: 50px 0;
+			padding: 6px 10px;
+			background: #4393e6;
+			color: #fff;
+			text-decoration: none;
+			border-radius: 3px;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+	</style>
+
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link rel="stylesheet" href="/static/themes/basicContext.min.css">
+	<link rel="stylesheet" href="/static/themes/default.min.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/layui_exts/mouseRightMenu.css">
+    <script type="text/javascript" src="/static/lib/layui/css/layui.css"></script>
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+  </head>
+  <body style="background-image: url('/static/images/floor.png'); background-repeat:  no-repeat; ">
+
+    <ul id="rightMenu"  style="width: 100px;display:none">
+            <li id = "useSeatId" style = "display:none" onclick = useSeat()>使用工位</li>
+            <li id = "backSeatId" style = "display:none" onclick = backSeat()>退还工位</li>
+            <li  id = "noUseSeatId" style = "display:none" onclick = noUseSeat()>取消使用</li>
+            <li id = "addSeatId" style = "display:none" onclick = addSeat() >新增工位</li>
+            <li  id = "recycleSeatId" style = "display:none" onclick = recycleSeat()>回收工位</li>
+            <li id = "zhipaiSeatId" style = "display:none" onclick = zhipaiSeat(this)>指派工位</li>
+            <li id = "delSeatId" style = "display:none" onclick = delSeat()>删除工位</li>
+            <li id = "lotzhipaiSeatId" style = "display:none" onclick = lotzhipaiSeat(this)>批量指派</li>
+            <li id = "diancuoId" style = "display:none" >.....</li>
+    </ul>
+    <script type="text/javascript">
+            //提取到函数外面作为全局变量
+            var rm=document.getElementById("rightMenu");
+             var role ={{ role }}
+            var department_id ={{ department_id }}
+            var floor ={{ floor }}
+            var x , y;
+            var objj;
+            var event;
+            var arra;
+            var func;
+            var recycle_func;
+            var useSeatId = document.getElementById("useSeatId");
+             var backSeatId = document.getElementById("backSeatId");
+             var  noUseSeatId = document.getElementById("noUseSeatId");
+            var addSeatId = document.getElementById("addSeatId");
+               var  recycleSeatId = document.getElementById("recycleSeatId");
+                var  zhipaiSeatId = document.getElementById("zhipaiSeatId");
+                var   delSeatId = document.getElementById("delSeatId");
+                var diancuoId = document.getElementById("diancuoId");
+                var lotzhipaiSeatId = document.getElementById("lotzhipaiSeatId")
+
+
+            //自定义一个浏览器右键菜单，单击右键是显示它
+
+
+            function  cancelChoose(obj,xx,yy,img){
+                   $(obj).html("");
+                       $(obj).html("<img    src ="+img+">");
+            }
+
+
+    {##根据角色显示菜单#}
+            function getPosOnRightMenu(obj,xx,yy,e,func_list,eee) {
+                func = JSON.stringify(func_list)
+                x = xx;
+                y = yy
+                objj = $(obj)
+                event = e
+                recycleSeatId.style.display = "none"
+                delSeatId.style.display = "none"
+                noUseSeatId.style.display = "none"
+                addSeatId.style.display = "none"
+                zhipaiSeatId.style.display = "none"
+                backSeatId.style.display = "none"
+                useSeatId.style.display = "none"
+                lotzhipaiSeatId.style.display = "none"
+                diancuoId.style.display = "none"
+                var arr = [];
+                    for (let i in func_list) {
+                        arr.push(func_list[i])
+                    }
+                arra = arr;
+    {##点击空白地方，，没有新增权限取消右键菜单弹出  有新增权限,只弹出新增权限，查询这里有座位提示已有座位#}
+                    if (arr.indexOf('1') == -1 && eee == 100) {
+                       diancuoId.style.display = "block"
+                   }
+                   if (arr.indexOf('1') > -1 && eee == 100) {
+                       addSeatId.style.display = "block"
+                   }
+                   {##工位查看#}
+
+                   {#工位指派#}
+                   if (arr.indexOf('4') > -1 && eee == 0) {
+                       zhipaiSeatId.style.display = "block"
+                       lotzhipaiSeatId.style.display = "block"
+                   }
+
+                   {#工位使用#}
+                   if (arr.indexOf('5') > -1 && eee == 2) {
+                       useSeatId.style.display = "block"
+                   }
+                   {#取消使用#}
+                   if (arr.indexOf('6') > -1 && eee == 1) {
+                       noUseSeatId.style.display = "block"
+                   }
+                   {#工位退还#}
+                   if (arr.indexOf('7') > -1 && eee == 2) {
+                       backSeatId.style.display = "block"
+                   }
+                   {#工位回收#}
+                   if (arr.indexOf('8') > -1 && eee == 2) {
+                       recycleSeatId.style.display = "block"
+                   }
+
+                   {#工位删除#}
+
+                   if (arr.indexOf('9') > -1 && eee == 0) {
+                       delSeatId.style.display = "block"
+                   }
+
+               }
+            function delSeat(){
+                layer.open({
+                         title: '删除此座位？'
+                        ,type: 2
+                        ,content: ['{% url 'delForm' %}', 'yes']
+                        ,area:['350px', '100px']
+                                ,btn: ['确定', '关闭']
+                            ,btnAlign:'c'
+                            ,yes: function(index, layero){
+                                //这里怎么获取到弹出框到表单内容？？
+
+                                        $.ajax({
+                                            url: "{% url 'delSeat' %}",
+                                            type: "post",
+                                            contentType: 'application/json',
+                                            dataType: "json",
+                                            data: JSON.stringify({'x': x, 'y': y, 'floor': floor}),
+                                            success: function (data) {
+                                                {#window.location.reload(true)#}
+                                                      objj.html("");
+                                                      objj.html("<img   src = '/static/images/miniWhite.png'>");
+                                                    objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',100)')
+                                                objj.attr("onmouseout",'' )
+                                                    objj.attr("onmouseover", '')
+                                                {#layer.msg(data.msg, {icon: 6});#}
+                                               layer.closeAll();
+                                                            {#return false;#}
+                                            },
+                                            error: function (data) {
+                                            layer.msg(data.responseJSON.msg, {icon: 5});
+                                            return false;
+                                            }
+                                            });
+                                          layer.closeAll();
+                            }
+                            ,btn2: function(){
+                                layer.closeAll();
+                            }
+                        });
+
+            }
+
+            function addSeat(){
+                {#新增工位，管理员可用，增加座位号，deleted = 0 ，status = 0#}
+                add_seat_show('新增工位','{% url 'addSeat' %}',500,260)
+            }
+
+            function zhipaiSeat(obj){
+                {##指派工位，管理员指派这个工位到部门，status=2#}
+                show('指派工位','{% url 'zhipaiSeat' %}',500,280,x,y,floor)
+            }
+            var objList = []
+           var  selectList = [];
+            function select(obj,x,y){
+                {#单击灰色选中变色#}
+                if($(obj).attr('ttt')) {
+                    $(obj).html('<img src = "/static/images/miniseatNoPerson.png">');
+                    var index = selectList.indexOf({'x':x,'y':y,'floor':floor})
+                    if (index > -1){
+                        selectList.splice(index,1)
+                    }
+                     var ind = objList.indexOf({'obj':$(obj)})
+                    if (index > -1){
+                        objList.splice(ind,1)
+                    }
+                    $(obj).attr('ttt','')
+                }
+                else {
+                    $(obj).attr('ttt',111)
+                    selectList.push({'x':x,'y':y,'floor':floor})
+                     objList.push({'obj':$(obj)})
+                    $(obj).html('<img src = "/static/images/miniwaitSeat.png">')
+                }
+
+            }
+            function lotzhipaiSeat(){
+                if(selectList.length != 0){
+                    lot_show('批量指派','{% url 'lotzhipaiSeat' %}',500,200)
+                }
+                else{
+                    layer.msg('请先鼠标单击选择工位')
+                }
+            }
+
+            function noUseSeat(){
+             layer.open({
+                         title: '取消此员工座位？'
+                        ,type: 2
+                        ,content: ['{% url 'noUserSeat' %}', 'yes']
+                        ,area:['350px', '100px']
+                                ,btn: ['确定', '关闭']
+                            ,btnAlign:'c'
+                            ,yes: function(index, layero){
+                                //这里怎么获取到弹出框到表单内容？？
+                                        $.ajax({
+                                            url: "{% url 'noUserSeat' %}",
+                                            type: "post",
+                                            contentType: 'application/json',
+                                            dataType: "json",
+                                            data: JSON.stringify({'x': x, 'y': y, 'floor': floor}),
+                                           success: function (data) {
+                                                if(data.obj == 2) {
+                                                    objj.html("");
+                                                    objj.html("<img   src = '/static/images/miniseatWaiting.png'>");
+                                          objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',2)')
+                                                    objj.attr("onmouseover", 'showNoUsedSeatInfo(this,event,x,y)')
+                                                }
+                                               if(data.obj == 4) {
+                                                    objj.html("");
+                                                    objj.html("<img   src = '/static/images/minimanageseatWaiting.png'>");
+                                            objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',2)')
+                                            objj.attr("onmouseover", 'showNoUsedSeatInfo(this,event,x,y)')
+                                                }
+                                               if(data.obj == 7) {
+                                                    objj.html("");
+                                                    objj.html("<img   src = '/static/images/miniofficeseatWaiting.png'>");
+                                                           objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',2)')
+                                            objj.attr("onmouseover", 'showNoUsedSeatInfo(this,event,x,y)')
+                                                }
+
+                                            layer.msg('取消成功', {icon: 6});
+                                            },
+                                            error: function (data) {
+                                            layer.msg(data.responseJSON.msg, {icon: 5});
+                                            return false;
+                                            }
+                                            });
+                                          layer.closeAll();
+                            }
+                            ,btn2: function(){
+                                layer.closeAll();
+                            }
+                        });
+
+            }
+
+            function useSeat(){
+                    {#使用工位，填写员工姓名，工号，status = 1，提示成功入座#}
+
+               show('使用工位','{% url 'useSeatForm' %}',500,300,x,y,floor)
+            }
+
+            function backSeat(){
+
+
+
+
+
+     layer.open({
+                         title: '退还此座位？'
+                        ,type: 2
+                        ,content: ['{% url 'backSeat' %}', 'yes']
+                        ,area:['350px', '100px']
+                                ,btn: ['确定', '关闭']
+                            ,btnAlign:'c'
+                            ,yes: function(index, layero){
+                                //这里怎么获取到弹出框到表单内容？？
+                                        layer.msg('成功申请退还工位，请等待管理员审核')
+                                        $.ajax({
+                                            url: "{% url 'backSeat' %}",
+                                            type: "post",
+                                            contentType: 'application/json',
+                                            dataType: "json",
+                                            data: JSON.stringify({'x': x, 'y': y, 'floor': floor}),
+                                           success: function (data) {
+                                                layer.msg(data.msg);
+
+                                            },
+                                            error: function (data) {
+                                            layer.msg(data.responseJSON.msg, {icon: 5});
+                                            return false;
+                                            }
+                                            });
+                                        setTimeout(function(){
+                                          layer.closeAll();
+                                        }, 2000) //停2秒
+                            }
+                            ,btn2: function(){
+                                layer.closeAll();
+                            }
+                        });
+            }
+            function recycleSeat(){
+                layer.open({
+                         title: '回收此座位？'
+                        ,type: 2
+                        ,content: ['{% url 'recycleSeat' %}', 'yes']
+                        ,area:['350px', '100px']
+                                ,btn: ['确定', '关闭']
+                            ,btnAlign:'c'
+                            ,yes: function(index, layero){
+                                //这里怎么获取到弹出框到表单内容？？
+
+                                        $.ajax({
+                                            url: "{% url 'recycleSeat' %}",
+                                            type: "post",
+                                            contentType: 'application/json',
+                                            dataType: "json",
+                                            data: JSON.stringify({'x': x, 'y': y, 'floor': floor}),
+                                            success: function (data) {
+                                                if (data.obj == 0){
+                                                    objj.html("<img   src = '/static/images/miniseatNoPerson.png'>");
+                                                    objj.attr('onmouseover','showNoSeat(this,event,' + x + ',' + y + ')')
+                                                    objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',0)')
+                                                    objj.attr('onclick','select(this,'+x+','+y+')')
+                                                }
+                                         else if (data.obj == 3){
+                                                    objj.html("<img   src = '/static/images/minimanageseatNoPerson.png'>");
+                                                    objj.attr('onmouseover','showNoSeat(this,event,' + x + ',' + y + ')')
+                                                  objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',0)')
+
+                                                }
+                                            else if (data.obj == 6){
+                                                    objj.html("<img   src = '/static/images/miniofficeseatNoPerson.png'>");
+                                                    objj.attr('onmouseover','showNoSeat(this,event,' + x + ',' + y + ')')
+                                                  objj.attr("oncontextmenu",'getPosOnRightMenu(this,'+x+','+ y +',event,'+JSON.stringify(arra)+',0)')
+                                                {#objj.attr('onclick','select(this,'+x+','+y+')')#}
+                                                }
+
+    layer.msg(data.msg, {icon: 6});
+
+                                            },
+                                            error: function (data) {
+                                            layer.msg(data.responseJSON.msg, {icon: 5});
+                                            return false;
+                                            }
+                                            });
+                                          layer.closeAll();
+                            }
+                            ,btn2: function(){
+                                layer.closeAll();
+                            }
+                        });
+
+
+
+
+
+
+
+            }
+
+            //oncontextmenu上下文菜单事件，右键菜单
+            document.documentElement.oncontextmenu=function (e) {
+                //显示我们自己定义的右键菜单
+                //1.找到菜单
+                //提取到函数外面作为全局变量
+
+
+                //兼容Event对象
+                e=e || window.event;
+
+                //2.设置菜单的位置等于鼠标的坐标
+                //判断：如果鼠标的位置+菜单的宽度>网页的宽度，那么就改为右边定位
+                //鼠标坐标
+                var mx=e.clientX;
+                var my=e.clientY;
+                //菜单宽度
+                var rmWidth=parseInt(rm.style.width);
+                //网页的宽度(高度用同样的方法解决)
+                var pageWidth=document.documentElement.clientWidth;
+     var positionX,positionY,top;
+          {##获取滚动条高度#}
+           top = document.documentElement.scrollTop;
+            var e =event || window.event;
+            positionY= (e.clientX+document.body.scrollLeft+document.documentElement.scrollLeft)+'px';
+            positionX = (e.clientY+document.body.scrollTop+document.documentElement.scrollTop)+'px';
+            {#return [positionY,positionX]#}
+                         rm.style.left =  positionY;
+                rm.style.top =  positionX;
+
+                //3.显示右键菜单
+                rm.style.display="block";
+
+                //阻止默认的右键菜单显示
+                return false;
+            };
+
+            //不需要积隐藏右键菜单
+            document.documentElement.onclick=function () {
+                rm.style.display="none";
+            }
+        </script>
+    <div class="x-body" >
+    <div id="t"></div>
+    <script>
+    var floor = {{ floor }}
+    var role = {{ role }}
+        var department_id = {{ department_id }}
+            if (role == 0){
+                department_id = 0
+            }
+            var cc = {{ xx }}
+    console.log()
+                var uu = {{ yy }}
+
+        $.ajax({
+                url:"{% url  'getSeat' %}",
+                type:"post",
+                contentType: 'application/json',
+                dataType:"json",
+                data:JSON.stringify({"floor":floor,"department_id":department_id}),
+                success:function (data) {
+                    var res = data.position;
+                    {#var info = data.info;#}
+
+                    var html = "<table >";
+                    res = JSON.stringify(res);
+
+                    var func_list = JSON.stringify(data.func_list)
+
+                    var arr = []
+                    for (let i in func_list) {
+                        arr.push(func_list[i])
+                    }
+                    {##没有查看工位权限#}
+                    if (arr.indexOf('2') == -1) {
+                        {#addSeatId.style.display = "block"#}
+                        recycleSeatId.style.display = "none"
+                        delSeatId.style.display = "none"
+                        noUseSeatId.style.display = "none"
+                        addSeatId.style.display = "none"
+                        zhipaiSeatId.style.display = "none"
+                        backSeatId.style.display = "none"
+                        useSeatId.style.display = "none"
+                        lotzhipaiSeatId.style.display = "none"
+                        {#diancuoId.style.display = "none"#}
+                        diancuoId.style.display = "block"
+                    } else {
+
+                        var jso = []
+                        {#console.log(info);#}
+                        for (var y = 0; y < 40; y++) {
+                            html += "<tr>";
+                            for (var x = 0; x < 45; x++) {
+
+                                if (jso.indexOf(JSON.stringify({'x': x, 'y': y})) != -1){
+                                   continue;
+                                }
+
+                                {#已使用#}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status': 1})) != -1) {
+                                    html += "<td oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",1)  onmouseover = showUsedSeatInfo(this,event," + x + "," + y + ")  width = 2 height = 2 class='layui-form'  >";
+
+                                    if(x == cc && y == uu){
+                                        html += "<img src = '/static/images/miniwaitSeat.png'>";
+
+                                    }
+                                    else{
+                                                html += "<img src = '/static/images/miniseatHasPerson.png'>";
+
+                                    }
+
+                                    html += "</td>";
+                                }
+                                    {##未分配#}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status': 0})) != -1) {
+                                    {#alert(444)#}
+                                    html += "<td oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",0)  onmouseover = showNoSeat(this,event," + x + "," + y + ") onclick = select(this," + x + "," + y + ")  width = 2 height = 2  class='layui-form' >";
+
+                                     if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/miniwaitSeat.png'>";
+
+                                            }
+                                            else {
+                                         html += "<img src = '/static/images/miniseatNoPerson.png'>";
+                                     }
+
+
+
+                                    html += "</td>";
+                                }
+
+                                    {#已分配未使用 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status': 2})) != -1) {
+                                    html += "<td oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",2)  onmouseover = showNoUsedSeatInfo(this,event," + x + "," + y + ")  width = 2 height =2 class='layui-form'   >";
+
+                            if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/miniwaitSeat.png'>";
+                                            }
+                                            else {
+                                 html += "<img src = '/static/images/miniseatWaiting.png'>";
+                             }
+
+                                    html += "</td>";
+                                }
+                                              {#主管工位未分配 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status':3})) != -1) {
+                                    html += "<td id = 'manage-seat'  oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",0)   colspan = 2  rowspan = 2　 onmouseover = showNoSeat(this,event," + x + "," + y + ")  width = 4 height =4 class='layui-form'   >";
+
+                                           if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/40waitSeat.png'>";
+                                            }
+                                            else {
+
+                                               html += "<img class = 'noseat'src = '/static/images/minimanageseatNoPerson.png'>"
+                                           }
+
+                                    html += "</td>";
+                                            for(var xxxxxxxxx = 0 ; xxxxxxxxx < 2 ;  xxxxxxxxx++){
+                                               for(var yyyyyyyyy = 0 ; yyyyyyyyy < 2 ; yyyyyyyyy++){
+                                            jso.unshift(JSON.stringify({'x':x+ xxxxxxxxx ,'y': y+yyyyyyyyy}));
+                                               }
+                                    }
+                                }
+
+                                                       {#主管工位为使用 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status':4})) != -1) {
+                                    html += "<td id = 'manage-seat'  oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",2)  colspan = 2  rowspan = 2　 onmouseover = showNoUsedSeatInfo(this,event," + x + "," + y + ")  width = 4 height =4 class='layui-form'   >";
+    if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/40waitSeat.png'>";
+                                            }
+                                            else {
+
+
+    html += "<img class = 'noseat' src = '/static/images/minimanageseatWaiting.png'>"
+    }
+
+                                    html += "</td>";
+                                         for(var xxxx = 0 ; xxxx < 2 ; xxxx++){
+                                               for(var yyyy = 0 ; yyyy < 2 ; yyyy++){
+                                                    jso.unshift(JSON.stringify({'x':x+xxxx, 'y': y+yyyy}));
+                                               }
+                                    }
+
+                                }
+                                                       {#主管工位以使用 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status':5})) != -1) {
+                                    html += "<td id = 'manage-seat'oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",1)   colspan = 2  rowspan = 2　  onmouseover = showUsedSeatInfo(this,event," + x + "," + y + ")  width = 4 height =4 class='layui-form'   >";
+
+    if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/40waitSeat.png'>";
+                                            }
+                                            else {
+
+
+    html += "<img class = 'noseat' src = '/static/images/minimanageseatHasPerson.png'>"
+
+    }
+                                    html += "</td>";
+                                       for(var xxxxxxx = 0 ; xxxxxxx < 2 ; xxxxxxx++){
+                                               for(var yyyyyyy = 0 ; yyyyyyy < 2 ; yyyyyyy++){
+                                            jso.unshift(JSON.stringify({'x':x+xxxxxxx, 'y': y+yyyyyyy}));
+                                               }
+                                    }
+                                }
+
+
+                        {#办公室未分配 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status':6})) != -1) {
+                                    html += "<td id = 'office-seat' oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",0) colspan = 4  rowspan = 4　 onmouseover = showNoSeat(this,event," + x + "," + y + ")   width = 8 height =8 class='layui-form'   >";
+    if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/80waitSeat.png'>";
+                                            }
+                                            else {
+
+
+    html += "<img class = 'noseat'   src = '/static/images/miniofficeseatNoPerson.png'>"
+    }
+
+                                    html += "</td>";
+
+                                    for(var u = 0 ; u < 4 ;u++){
+                                         for(var e = 0 ;e< 4 ; e++){
+
+                                            jso.unshift(JSON.stringify({'x':x+u, 'y': y+e}));
+                                         }
+                                    }
+                                }
+
+                       {#办公室为使用 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status':7})) != -1) {
+                                    html += "<td id = 'office-seat'  oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",2)   colspan = 4  rowspan = 4　 onmouseover = showNoUsedSeatInfo(this,event," + x + "," + y + ")   width = 8 height =8 class='layui-form'   >";
+
+
+    if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/80waitSeat.png'>";
+                                            }
+                                            else {
+
+    html += "<img class = 'noseat' src = '/static/images/miniofficeseatWaiting.png'>"
+    }
+
+                                    html += "</td>";
+                                        for(var xxxxx = 0 ; xxxxx < 4 ; xxxxx++){
+                                               for(var yyyyy = 0 ; yyyyy < 4 ; yyyyy++){
+                                                    jso.unshift(JSON.stringify({'x':x+xxxxx, 'y': y+yyyyy}));
+                                               }
+                                        }
+                                }
+
+                        {#办公室已使用 #}
+                                else if (res.indexOf(JSON.stringify({'x': x, 'y': y, 'status':8})) != -1) {
+                                    html += "<td id = 'office-seat' oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",1) colspan = 4  rowspan = 4　  onmouseover = showUsedSeatInfo(this,event," + x + "," + y + ")  width = 8 height =8 class='layui-form'   >";
+    if(x == cc && y == uu){
+                                                html += "<img src = '/static/images/80waitSeat.png'>";
+                                            }
+                                            else {
+
+
+    html += "<img class = 'noseat'  src = '/static/images/miniofficeseatHasPerson.png'>"
+    }
+
+                                    html += "</td>";
+                                          for(var xxxxxx = 0 ; xxxxxx < 4 ; xxxxxx++){
+                                               for(var yyyyyy = 0 ; yyyyyy < 4 ; yyyyyy++){
+                                            jso.unshift(JSON.stringify({'x':x+xxxxxx, 'y': y+yyyyyy}));
+                                               }
+                                    }
+                                }
+
+
+
+
+                                else {
+                                    {#html +="<td   onclick = addOneSeat(this,"+x+","+y+")  width = 2 height = 2    id = '["+x+","+y+"]'   >";#}
+                                    html += "<td oncontextmenu= getPosOnRightMenu(this," + x + "," + y + ",event," + func_list + ",100)  ondblclick = chooseSeat(this," + x + "," + y + ")   width = 2 height = 2    id = '[" + x + "," + y + "]'   >";
+                                    {#html += "<img class = 'noseat' src = '/static/images/miniWhite.png'>";#}
+                                     html += "<img class = 'noseat' src = '/static/images/miniWhite.png'>";
+
+                                    html += "</td>";
+                                }
+                            }
+                            html += "</tr>"
+                        }
+                        html += "</table>";
+                        document.getElementById('t').innerHTML = html;
+                    }
+                },
+                error:function (data) {
+                    return false;
+                }
+            });
+    </script>
+    <script>
+
+
+    </script>
+    <script type="text/javascript">
+
+    {#获得鼠标位置#}
+    {#空白处右击事件#}
+
+
+        var positionXY;
+
+    function sendMessageToAdmin(obj,x,y){
+
+    $.ajax({
+    url: "{% url 'sendMessageToAdmin' %}",
+    type: "post",
+    contentType: 'application/json',
+    dataType: "json",
+    data: JSON.stringify({'user_id': '000001', 'seat_id': 'A022', 'send_msg': '申请工位'}),
+    success: function (data) {
+    layer.msg('发送成功', {icon: 6});
+    },
+    error: function (data) {
+    layer.msg('新增失败', {icon: 5});
+    return false;
+    }
+    }
+    )
+
+    }
+
+    function seatNoOne(obj){
+    positionXY=getMousePosition(obj);
+    positionY=positionXY[0];
+    positionX=positionXY[1];
+    layer.msg('未分配',{offset:[positionX,positionY]})
+    }
+
+    function seatWaiting(obj,event,x,y,id){
+    positionXY=getMousePosition(obj);
+    positionY=positionXY[0];
+    positionX=positionXY[1];
+    layer.msg('审核中,申请部门XXX',{offset:[positionX,positionY]})
+
+    }
+    function seatWaitForUser(obj,event,x,y,id){
+    positionXY=getMousePosition(obj);
+    positionY=positionXY[0];
+    positionX=positionXY[1];
+    layer.msg('属于XXX部门，未使用',{offset:[positionX,positionY]})
+
+    }
+
+
+
+    function delUserAction(obj){
+
+    console.log('dianji珊瑚了')
+    }
+
+    function getMousePosition(obj,event){
+    var positionX,positionY,top;
+    {##获取滚动条高度#}
+    top = document.documentElement.scrollTop;
+    var e =event || window.event;
+    positionY= (e.clientX+document.body.scrollLeft+document.documentElement.scrollLeft)+'px';
+    positionX = (e.clientY+document.body.scrollTop+document.documentElement.scrollTop-top)+'px';
+    return [positionY,positionX]
+    }
+
+    function RightWhiteAction(obj,e,x,y){
+    positionXY=getMousePosition(obj,e);
+    positionY=positionXY[0];
+    positionX=positionXY[1];
+    {#window.oncontextmenu=function(e){#}
+    //取消默认的浏览器自带右键 很重要！！
+        e.preventDefault();
+        //获取我们自定义的右键菜单
+            layer.msg('哈哈',{offset:[positionX,positionY]})
+        //关闭右键菜单，很简单
+    }
+
+    function closeMsg(){
+    var index = layer.msg()
+     layer.close(index)
+    }
+
+
+    function  showNoSeat(obj,event,x,y) {
+
+     var positionX,positionY,top;
+    {##获取滚动条高度,鼠标坐标#}
+    top = document.documentElement.scrollTop;
+    var e =event || window.event;
+    positionY= (e.clientX+document.body.scrollLeft+document.documentElement.scrollLeft+60)+'px';
+    positionX = (e.clientY+document.body.scrollTop+document.documentElement.scrollTop-top)+'px';
+      $.ajax({
+    url:"{% url 'getUserInfoBySeat' %}",
+    type:"post",
+    contentType: 'application/json',
+    dataType:"json",
+    data:JSON.stringify({'x':x,'y':y,'floor':floor,'title':'nobody'}),
+    success:function (data) {
+    {#console.log(data)#}
+    var info = data.info;
+                let information ;
+                    information = "状态:"+info[0]['status']+"  <br>座位:"+info[0]['seat_id']+""
+       var mylay = layer.msg(information,{offset:[positionX,positionY]});
+    }})
+
+    }
+    function showNoUsedSeatInfo(obj,event,x,y){
+     var positionX,positionY,top;
+    {##获取滚动条高度,鼠标坐标#}
+    top = document.documentElement.scrollTop;
+    var e =event || window.event;
+    positionY= (e.clientX+document.body.scrollLeft+document.documentElement.scrollLeft+60)+'px';
+    positionX = (e.clientY+document.body.scrollTop+document.documentElement.scrollTop-top)+'px';
+      $.ajax({
+    url:"{% url 'getUserInfoBySeat' %}",
+    type:"post",
+    contentType: 'application/json',
+    dataType:"json",
+    data:JSON.stringify({'x':x,'y':y,'floor':floor,'title':'noUsed'}),
+    success:function (data) {
+    {#console.log(data)#}
+    var info = data.info;
+                let information ;
+                    information = "状态:"+info[0]['status']+"  <br>部门:"+info[0]['department_id__name']+"  <br>座位:"+info[0]['seat_id']+""
+        layer.msg(information,{offset:[positionX,positionY]});
+    }})
+    }
+    function showUsedSeatInfo(obj,event,x,y) {
+      var positionX,positionY,top;
+    {##获取滚动条高度,鼠标坐标#}
+    top = document.documentElement.scrollTop;
+    var e =event || window.event;
+    positionY= (e.clientX+document.body.scrollLeft+document.documentElement.scrollLeft+60)+'px';
+    positionX = (e.clientY+document.body.scrollTop+document.documentElement.scrollTop-top)+'px';
+    $.ajax({
+    url:"{% url 'getUserInfoBySeat' %}",
+    type:"post",
+    contentType: 'application/json',
+    dataType:"json",
+    data:JSON.stringify({'x':x,'y':y,'floor':floor,'title':'used'}),
+    success:function (data) {
+    {#console.log(data)#}
+    var info = data.info;
+                let information ;
+                    information = "状态:"+info[0]['status']+"  <br>用户编号:"+info[0]['user_id']+" <br> 姓名:"+info[0]['name']+" <br>部门:"+info[0]['department_id__name']+"  <br>座位:"+info[0]['seat_id']+""
+        layer.msg(information,{offset:[positionX,positionY]});
+    }})
+    }
+
+
+
+
+
+    </script>
+    <script>
+    function show(title,url,w,h,x,y,floor){
+    if (title == null || title == '') {
+    title=false;
+    };
+    if (url == null || url == '') {
+    url="404.html";
+    };
+    if (w == null || w == '') {
+    w=($(window).width()*0.5);
+    };
+    if (h == null || h == '') {
+    h=($(window).height()*0.4);
+    };
+    data = {
+        x:x,
+    y:y,
+    floor:floor,
+    obj:objj,
+    event:event,
+    {#funclist:funclist#}
+        {#a:this.itemActive#}
+    };
+    layer.open({
+    type: 2,
+    area: [w+'px', h +'px'],
+    fix: false, //不固定
+    maxmin: true,
+    shadeClose: true,
+    shade:0.4,
+    {#data:{'test':333},#}
+    title: title,
+    content: url,
+    {#end: function () { //最后执行reload#}
+    {#        location.reload();#}
+    {#    }#}
+    });
+    }
+
+    function lot_show(title,url,w,h,x,y,floor){
+    if (title == null || title == '') {
+    title=false;
+    };
+    if (url == null || url == '') {
+    url="404.html";
+    };
+    if (w == null || w == '') {
+    w=($(window).width()*0.5);
+    };
+    if (h == null || h == '') {
+    h=($(window).height()*0.4);
+    };
+    data = {
+        x:x,
+    y:y,
+    floor:floor,
+    obj:objj,
+    event:event,
+    {#funclist:funclist#}
+        {#a:this.itemActive#}
+    };
+    layer.open({
+    type: 2,
+    area: [w+'px', h +'px'],
+    fix: false, //不固定
+    maxmin: true,
+    shadeClose: true,
+    shade:0.4,
+    {#data:{'test':333},#}
+    title: title,
+    content: url,
+    end: function () { //最后执行reload
+        selectList = [];
+        objList = []
+    }
+    {#end: function () { //最后执行reload#}
+    {#        location.reload();#}
+    {#    }#}
+    });
+    }
+
+    function add_seat_show(title,url,w,h,x,y,floor){
+    if (title == null || title == '') {
+    title=false;
+    };
+    if (url == null || url == '') {
+    url="404.html";
+    };
+    if (w == null || w == '') {
+    w=($(window).width()*0.5);
+    };
+    if (h == null || h == '') {
+    h=($(window).height()*0.4);
+    };
+    data = {
+        x:x,
+    y:y,
+    floor:floor,
+    obj:objj,
+    event:event,
+    {#funclist:funclist#}
+        {#a:this.itemActive#}
+    };
+    layer.open({
+    type: 2,
+    area: [w+'px', h +'px'],
+    fix: false, //不固定
+    maxmin: true,
+    shadeClose: true,
+    shade:0.4,
+    {#data:{'test':333},#}
+    title: title,
+    content: url,
+    end: function () { //最后执行reload
+        selectList = [];
+        objList = []
+    location.reload();
+    }
+    });
+    }
+
+
+    </script>
+    <script>
+    </script>
+    </div>
+  </body>
+
+</html>
+

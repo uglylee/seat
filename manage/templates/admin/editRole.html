@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <link rel="stylesheet" href="/static/lib/layui2.5.4/css/layui.css"　media="all">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+{#       <link rel="stylesheet" href="/static/lib/layui/css/layui.css">#}
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="/static/js/html5.min.js"></script>
+      <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="x-body">
+    <form class="layui-form">
+    <fieldset class="layui-elem-field site-demo-button" style="margin-top: 2px;">
+      <legend>部门</legend>
+            <div class="layui-row" align = 'right'>
+                {% for one in depart_list %}
+                    <div class="layui-col-xs3">
+                      <div class="grid-demo grid-demo-bg1">
+                          {% if one.status == 1 %}
+                           {{ one.name }}:<input type="checkbox" name="xxx" lay-skin="switch" data-id = {{ one.id }}  lay-filter="switchDepart" checked>
+                          {% elif one.status == 0 %}
+                           {{ one.name }}:<input type="checkbox" name="xxx" lay-skin="switch" data-id = {{ one.id }}  lay-filter="switchDepart" >
+                          {% endif %}
+                      </div>
+                    </div>
+                {% endfor %}
+              </div>
+    </fieldset>
+    <fieldset class="layui-elem-field site-demo-button" style="margin-top: 2px;">
+      <legend>权限</legend>
+       <div class="layui-row" align = 'right'>
+             {% for i in func_list %}
+                    <div class="layui-col-xs3">
+                      <div class="grid-demo grid-demo-bg1">
+                           {% if i.status == 1 %}
+                           {{ i.name }}:<input type="checkbox" name="xxx" lay-skin="switch" data-id = {{ i.id }} lay-filter="switchFunc" checked>
+                          {% elif i.status == 0 %}
+                           {{ i.name }}:<input type="checkbox" name="xxx" lay-skin="switch" data-id = {{ i.id }}  lay-filter="switchFunc">
+                          {% endif %}
+                      </div>
+                    </div>
+             {% endfor %}
+{#      <input type="checkbox" checked="" name="open" lay-skin="switch" lay-filter="switchTest" title="开关">#}
+         </div>
+    </fieldset>
+    </form>
+    </div>
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+    <script>
+
+
+        layui.use(['form','layer'], function(){
+            $ = layui.jquery;
+          var form = layui.form
+          ,layer = layui.layer;
+ let data = parent.layer;
+          //自定义验证规则
+          form.verify({
+            nikename: function(value){
+              if(value.length < 5){
+                return '昵称至少得5个字符啊';
+              }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,repass: function(value){
+                if($('#L_pass').val()!=$('#L_repass').val()){
+                    return '两次密码不一致';
+                }
+            }
+          });
+
+var group_id = {{ id }},FuncChanged,id,DepartChanged;
+
+              form.on('switch(switchFunc)', function(data){
+                 FuncChanged = this.checked ? 'true' : 'false';
+                 id = $(this).attr('data-id');
+                 obj  =  {
+                   'group_id':group_id,
+                   'id':id,
+                   'FuncChanged':FuncChanged
+                 };
+                    $.post("{% url 'changeGroupFunc' %}",obj,function(res){
+                        {#console.log(res)#}
+                    },'json');
+                    return false;
+                {#layer.tips('温馨提示：请注意', data.othis)#}
+              });
+
+
+          form.on('switch(switchDepart)', function(data){
+                 DepartChanged = this.checked ? 'true' : 'false';
+                 id = $(this).attr('data-id');
+                 obj  =  {
+                   'group_id':group_id,
+                   'id':id,
+                   'DepartChanged':DepartChanged
+                 };
+                    $.post("{% url 'changeGroupDepart' %}",obj,function(res){
+                        {#console.log(res)#}
+                    },'json');
+                    return false;
+
+            {#layer.tips('温馨提示：11请注意', data.othis)#}
+          });
+
+
+
+        });
+
+
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html dir="ltr" lang="en-US">
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>工位系统</title>
+<link rel="preload" href="/static/images/form-bg.png" as="image">
+	<meta name="author" content="www.connectany.cn">
+	<meta name="copyright" content="Copyright  www.connectany.cn">
+	<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+        <script type="text/javascript" src="/static/lib/layui/css/layui.css"></script>
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+	</head>
+	<body>
+		<div id="container">
+			<form action="{% url 'seatSystem' %}" method = 'POST'>
+				<div class="login">LOGIN</div>
+				<div class="username-text">域账号:</div>
+				<div class="password-text">密码:</div>
+				<div class="username-field">
+					<input type="text" name="domain_accounts" value="" placeholder="输入域账号"/>
+				</div>
+				<div class="password-field">
+					<input type="password" name="password" value="" placeholder="输入密码"/>
+				</div>
+
+				<input style="visibility:hidden;" type="checkbox"  name="remember-me" id="remember-me" /><label style = "visibility:hidden;" for="remember-me">Remember me</label>
+				<div style = "visibility:hidden;" class="forgot-usr-pwd">Forgot <a href="#">username</a> or <a href="#">password</a>?</div>
+				<input type="submit" name="submit" value="登陆" />
+			</form>
+		</div>
+		<div id="footer">
+			 武汉研发中心工位系统 <a href="https://biosino.org/"></a>
+		</div>
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="/static/js/echarts.min.js"></script>
+			 <script src="/static/lib/layui2.5.4/layui.js"></script>
+	<script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+
+	<script>
+var status = {{ status }}
+if (status==1)
+{
+    var msg= "{{ msg }}"
+    console.log(msg)
+    layui.use('layer', function () {
+        var layer = layui.layer;
+        {#layer.msg(msg);#}
+        layer.msg(msg,{'icon':5});
+            //语音消息
+            var url = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&text=" + encodeURI(msg);        // baidu
+            var n = new Audio(url);
+            n.src = url;
+            n.play();
+    });
+}
+    </script>
+	</body>
+</html>

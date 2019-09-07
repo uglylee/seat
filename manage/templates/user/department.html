@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>控制台</title>
+        <meta name="renderer" content="webkit">
+              <link rel="stylesheet" href="/static/lib/layui2.5.4/css/layui.css" media="all">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+        <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="/static/css/font.css">
+        <link rel="stylesheet" href="/static/css/xadmin.css">
+    </head>
+     <body style="height: 100%; margin: 0">
+
+
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">首页</a>
+        <a href="">系统设置</a>
+        <a>
+          <cite>部门列表</cite></a>
+      </span>
+      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+        <i class="layui-icon" style="line-height:30px">&#xe9aa;</i></a>
+    </div>
+
+    <ul class="layui-row layui-col-space10 layui-this" >
+                 <li id = "dPicture" class="layui-col-xs2" style="width:98%;height:500px;left:10px ;top:30px;background:white;">
+                                        </li>
+            </ul>
+    <ul>
+               <li id = "container11" class="layui-col-xs2" style="width:98%;height:400px;left:10px ;top:10px;background:white;">
+               <table class="layui-hide" id="department" lay-filter="department"></table>
+                                        </li>
+    </ul>
+     </div>
+    <script src="/static/lib/layui2.5.4/layui.js"></script>
+    <script type="text/javascript" src="/static/js/echarts.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+     {#部门#}
+    <script>
+             var uid;
+    layui.use([ 'laypage', 'layer', 'table', 'element', 'form'], function(){
+      var laypage = layui.laypage //分页
+      ,layer = layui.layer //弹层
+      ,table = layui.table //表格
+      ,element = layui.element //元素操作
+          ,form = layui.form;//表单
+
+      //监听Tab切换
+      element.on('tab(department)', function(data){
+        layer.tips('切换了 '+ data.index +'：'+ this.innerHTML, this, {
+          tips: 1
+        });
+      });
+      //执行一个 table 实例
+      table.render({
+        elem: '#department'
+       ,height:450
+          ,limit:20
+          ,limits:[5,10,20]
+          ,skin: 'nob' //行边框风格
+          ,even: true //开启隔行背景
+          ,size: 'bg' //小尺寸的表格
+        ,url: '{% url 'getDepartmentInfo' %}' //数据接口
+             {#,where:{title:'user'}#}
+        ,title: '部门表'
+        ,page: true //开启分页
+        ,toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+        {#,totalRow: true //开启合计行#}
+        ,cols: [[ //表头
+          {type: 'checkbox', width:'9%',fixed: 'left'},
+          {field: 'id', title: 'ID', width:'7%', sort: true, fixed: 'left'}
+          ,{field: 'name', title: '部门', width: '84%'}
+          {#,{fixed: 'right', width: '15%', align:'center', toolbar: '#barDepartment'}#}
+        ]]
+      });
+        //监听单元格编辑
+        {#test3#}
+      table.on('edit(name)', function(obj){
+        var value = obj.value //得到修改后的值
+        ,data = obj.data //得到所在行所有键值
+        ,field = obj.field; //得到字段
+        layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+      });
+
+      //监听头工具栏事件
+      table.on('toolbar(department)', function(obj){
+        var checkStatus = table.checkStatus(obj.config.id)
+        ,data = checkStatus.data; //获取选中的数据
+        switch(obj.event){
+          case 'add':
+            {#layer.msg('添加');#}
+                          add_Department_show('新增部门','{% url 'departmentAddForm' %}',470,200)
+          break;
+          case 'update':
+              {##编辑#}
+            if(data.length === 0){
+              layer.msg('请选择一行');
+            } else if(data.length > 1){
+              layer.msg('只能同时编辑一个');
+            } else {
+              {#layer.alert('编辑 [id]：'+ checkStatus.data[0].id);#}
+                uid = checkStatus.data[0].id
+              add_Department_show('编辑部门','{% url 'departmentEdit' %}',500,200)
+
+            }
+          break;
+          case 'delete':
+            if(data.length === 0){
+              layer.msg('请选择一行');
+            } else {
+                var userArray=new Array();
+                var idArray = new Array();
+                for(var i = 0 ; i <checkStatus.data.length;i++ ){
+                    userArray[i] = checkStatus.data[i].name;
+                    idArray[i] = checkStatus.data[i].id;
+                }
+                layer.confirm('删除部门'+userArray+'?',{btn:['是的,我确定','我再想想']}, function(index){
+                           {#checkStatus.del(); //删除对应行（tr）的DOM结构#}
+                            layer.close(index);
+
+
+                      $.ajax({
+                            url: "{% url 'delDepartment' %}",
+                            type: "post",
+                            contentType: 'application/json',
+                            dataType: "json",
+                            data: JSON.stringify({'id': idArray[0]}),
+                            success: function (data){
+                            {#layer.msg('删除成功', {});#}
+                              var oldData =  table.cache["user"];
+                                {#oldData.splice(obj.checkStatus.data('index'),idArray.length);#}
+                                layer.msg("删除成功",{time: 30,icon: 6},function(){
+                                    table.reload('department');
+                                    return false;
+                                });
+                            },
+                            error: function (data) {
+                            layer.msg(data.responseJSON['msg'], {icon: 5});
+                            return false;
+                            }
+                            });
+
+                })
+            }
+          break;
+        };
+      });
+
+      //监听行工具事件
+      table.on('tool(department)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+        var data = obj.data //获得当前行数据
+        ,layEvent = obj.event; //获得 lay-event 对应的值
+
+        {#删除#}
+       if(layEvent === 'del'){
+          layer.confirm('删除'+obj.data.name+'？',{btn:['是的,我确定','我再想想']}, function(index){
+            obj.del(); //删除对应行（tr）的DOM结构
+            layer.close(index);
+            var id = obj.data.id;
+            //向服务端发送删除指令
+                $.ajax({
+                    url: "{% url 'delUser' %}",
+                    type: "post",
+                    contentType: 'application/json',
+                    dataType: "json",
+                    data: JSON.stringify({'id': id,'title':'delOneUser'}),
+                    success: function (data) {
+                    layer.msg('删除成功', {icon: 6});
+                    },
+                    error: function (data) {
+                    layer.msg('删除失败', {icon: 5});
+                    return false;
+                    }
+                })
+
+
+          });
+        } else if(layEvent === 'edit'){
+          layer.msg('编辑操作');
+        }
+      });
+    })
+      </script>
+    <script type="text/html" id="barDemo">
+      <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail" >设置分组</a>
+      <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+    <script>
+
+            option = {
+        title : {
+            text: '各部门工位数',
+            {#subtext: '2019-01-01至2019-05-31',#}
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            top:'middle',
+            left: 'left',
+            data: ['整车工程中心','人力资源部','用户体验及功能开发中心	','路特斯工程（中国）','吉利品牌研究院NL项目组','PMA项目组','创新中心','电子电器开发中心','整车试验中心','智能驾驶开发中心','技术管理中心','整车试制中心','领克品牌研究院电子电器部','其他']
+        },
+        series : [
+            {
+                name: '部门工位',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                label:{
+                    show:true,
+                    formatter:'{b}: {d}%'
+                },
+                data:[
+                    {value:2628,name:'整车工程中心'},
+                    {value:1797,name:'人力资源部'},
+                    {value:1399,name:'用户体验及功能开发中心'},
+                    {value:1241,name:'路特斯工程（中国）'},
+                    {value:1211,name:'吉利品牌研究院NL项目组'},
+                    {value:1198,name:'PMA项目组'},
+                    {value:980	,name:'创新中心'},
+                    {value:949	,name:'电子电器开发中心'},
+                    {value:936	,name:'整车试验中心'},
+                    {value:885	,name:'智能驾驶开发中心'},
+                    {value:849	,name:'技术管理中心'},
+                    {value:827	,name:'整车试制中心'},
+                    {value:521	,name:'领克品牌研究院电子电器部'},
+                    {value:14557	,name:'其他'}
+                ],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    {#var dd = {{ obj }}#}
+    {#    var bb = {{ depart }}#}
+                                                                            $.ajax({
+                                                                                url: "{% url 'depart' %}",
+                                                                                type: "post",
+                                                                                contentType: 'application/json',
+                                                                                dataType: "json",
+                                                                                success: function (data) {
+                                                                                dom = document.getElementById('dPicture');
+                                                                                        myChart = echarts.init(dom);
+                                                                                    option.legend.data = data.depart;
+                                                                                    option.series[0].data=data.obj;
+                                                                                    myChart.setOption(option);
+                                                                                },
+                                                                                error: function (data) {
+                                                                                layer.msg('错误', {icon: 5});
+                                                                                     {#console.log(333)#}
+                                                                                return false;
+                                                                                }
+                                                                                });
+
+                                    {#dom.style.display = "block";#}
+
+
+        </script>
+    <script>
+         var objjjj;
+
+      </script>
+    <script>
+
+        function add_Department_show(title,url,w,h){
+        if (title == null || title == '') {
+            title=false;
+        };
+        if (url == null || url == '') {
+            url="404.html";
+        };
+        if (w == null || w == '') {
+            w=($(window).width()*0.35);
+        };
+        if (h == null || h == '') {
+            h=($(window).height()-300);
+        };
+        layer.open({
+            type: 2,
+            area: [w+'px', h +'px'],
+            fix: false, //不固定
+            maxmin: true,
+            shadeClose: true,
+            shade:0.4,
+            title: title,
+            content: url
+        });}
+
+
+
+        function add_User_show(title,url,w,h){
+        if (title == null || title == '') {
+            title=false;
+        };
+        if (url == null || url == '') {
+            url="404.html";
+        };
+        if (w == null || w == '') {
+            w=($(window).width()*0.4);
+        };
+        if (h == null || h == '') {
+            h=($(window).height()-150);
+        };
+        layer.open({
+            type: 2,
+            area: [w+'px', h +'px'],
+            fix: false, //不固定
+            maxmin: true,
+            shadeClose: true,
+            shade:0.4,
+            title: title,
+            content: url
+        });}
+
+
+            function setGroup_show(title,url,w,h){
+            {#console.log(id)#}
+        if (title == null || title == '') {
+            title=false;
+        };
+        if (url == null || url == '') {
+            url="404.html";
+        };
+        if (w == null || w == '') {
+            w=($(window).width()*0.4);
+        };
+        if (h == null || h == '') {
+            h=($(window).height()-150);
+        };
+        layer.open({
+            type: 2,
+            area: [w+'px', h +'px'],
+            fix: false, //不固定
+            maxmin: true,
+            shadeClose: true,
+            shade:0.4,
+            title: title,
+            data:{   objjj:objjjj,},
+            content: url
+        });}
+
+
+        </script>
+   </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

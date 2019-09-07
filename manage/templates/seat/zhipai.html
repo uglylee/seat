@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>工位系统</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+          <script type="text/javascript" src="/static/lib/layui/layui.js" charset="utf-8"></script>
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+{#               <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>#}
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
+    <script type="text/javascript" src="/static/js/jquery-3.2.1.min.js"></script>
+
+    <script type="text/javascript" src="/static/js/xadmin.js"></script>
+              <script type="text/css" src="/static/lib/layui/css/layui.css"></script>
+
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+      <script src="/static/js/html5.min.js"></script>
+      <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="x-body">
+        <form class="layui-form">
+
+
+
+
+                      <div class="layui-form-item">
+              <label for="seat_id" class="layui-form-label">
+                  <span class="x-red"></span>座位
+              </label>
+              <div class="layui-input-inline">
+                  <input  type="text" id="seat_id" name="seat_id" required=""  disabled lay-verify="required"
+                  autocomplete="off" class="layui-input">
+              </div>
+{#              <div class="layui-form-mid layui-word-aux">#}
+{#                  <span class="x-red">*</span>#}
+{#              </div>#}
+          </div>
+
+
+    <label class="layui-form-label">部门</label>
+            <div class="layui-input-inline" style="width:150px;">
+                <select name="department_id" id="server" lay-verify="required">
+                    <option value="">请选择部门</option>
+                 </select>
+            </div>
+
+{#  <div class="layui-form-item layui-form-text">#}
+{#    <label class="layui-form-label">申请说明</label>#}
+{#    <div class="layui-input-block">#}
+{#      <textarea name="send_msg" placeholder="请填写申请说明" class="layui-textarea"></textarea>#}
+{#    </div>#}
+{#  </div>#}
+
+
+
+          <div class="layui-form-item">
+              <label for="L_repass" class="layui-form-label">
+              </label>
+              <button  id = "button1" type = "button" class="layui-btn" lay-filter="add" lay-submit="">
+                  指派
+              </button>
+          </div>
+      </form>
+    </div>
+    <script>
+
+       var x = parent.data.x;
+         var y = parent.data.y;
+        var  floor = parent.data.floor;
+        var  event = parent.data.event;
+        var objj = parent.data.obj;
+                                    $.ajax({
+                                    url: "{% url 'getSeatId' %}",
+                                    type: "post",
+                                    contentType: 'application/json',
+                                    dataType: "json",
+                                    data: JSON.stringify({'x': x, 'y': y, 'floor': floor}),
+                                    success: function (data) {
+                                    var seat = data.obj;
+                                        document.getElementById('seat_id').value = seat;
+                                    },
+                                    error: function (data) {
+                                    {#layer.msg('新增失败', {icon: 5});#}
+                                    return false;
+                                    }
+                                    });
+
+        layui.use(['form','layer'], function(){
+            $ = layui.jquery;
+          var form = layui.form
+          ,layer = layui.layer;
+
+
+          //自定义验证规则
+          form.verify({
+            nikename: function(value){
+              if(value.length < 5){
+                return '昵称至少得5个字符啊';
+              }
+            }
+            ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+            ,repass: function(value){
+                if($('#L_pass').val()!=$('#L_repass').val()){
+                    return '两次密码不一致';
+                }
+            }
+          });
+
+          //监听提交
+
+          form.on('submit(add)', function(data){
+            var seat_id = data.field.seat_id;
+              var department_id = data.field.department_id;
+              var func_list = parent.func;
+
+                            $.ajax({
+                                    url: "{% url 'zhipaiSeat' %}",
+                                    type: "post",
+                                    contentType: 'application/json',
+                                    dataType: "json",
+                                    data: JSON.stringify({'seat_id': seat_id, 'department_id': department_id}),
+                                    success: function (data) {
+                                        if (data.msg == '2') {
+                                            $(objj).attr("oncontextmenu", 'getPosOnRightMenu(this,' + x + ',' + y + ',event,' + func_list + ',2)')
+                                            $(objj).attr("onmouseover", 'showNoUsedSeatInfo(this,event,' + x + ',' + y + ')')
+                                            $(objj).attr("onclick", '')
+                                            $(objj).html("<img src = '/static/images/miniseatWaiting.png'>");
+                                        }
+                                        if (data.msg == '4') {
+                                            $(objj).attr("oncontextmenu", 'getPosOnRightMenu(this,' + x + ',' + y + ',event,' + func_list + ',2)')
+                                              $(objj).attr("onmouseover", 'showNoUsedSeatInfo(this,event,' + x + ',' + y + ')')
+                                           $(objj).attr("onclick", '')
+                                          $(objj).html("<img  src = '/static/images/minimanageseatWaiting.png'>")
+                                        }
+
+                                        if (data.msg == '7') {
+
+                                                    $(objj).attr("oncontextmenu", 'getPosOnRightMenu(this,' + x + ',' + y + ',event,' + func_list + ',2)')
+                                              $(objj).attr("onmouseover", 'showNoUsedSeatInfo(this,event,' + x + ',' + y + ')')
+                                               $(objj).attr("onclick", '')
+                                          $(objj).html("<img src = '/static/images/miniofficeseatWaiting.png'>")
+
+                                        }
+
+
+                                        var index = parent.layer.getFrameIndex(window.name);
+                                    //关闭当前frame
+                                    parent.layer.close(index);
+
+                                    },
+                                    error: function (data) {
+                                    layer.msg(data.responseJSON.msg, {icon: 5});
+                                    return false;
+                                    }
+                                    });
+
+                    });
+
+ {##获取部门信息家在到下拉框#}
+         var server = document.getElementById("server"); //server为select定义的id
+                                $.ajax({
+                                url: "{% url 'selectDepartment' %}",
+                                type: "get",
+                                contentType: 'application/json',
+                                dataType: "json",
+                                {#data: JSON.stringify({'x': x, 'y': y, 'floor': 38}),#}
+                                success: function (data) {
+                                    var va=data.department;
+                                {#layer.msg('新增成功', {icon: 6});#}
+                                      for(var i = 0 ; i< va.length ;i++) {
+                                                    var option = document.createElement("option");  // 创建添加option属性
+                                                    option.setAttribute("value", va[i]['id']); // 给option的value添加值
+                                                    option.innerText = va[i]['name'];     // 打印option对应的纯文本
+                                                    server.appendChild(option);           //给select添加option子标签
+                                                }
+                                                    form.render("select");            // 刷性select，显示出数据
+                                },
+                                error: function (data) {
+                                layer.msg('获取部门信息失败', {icon: 5});
+                                return false;
+                                }
+               });
+
+        });
+
+
+
+
+    </script>
+
+  </body>
+
+</html>
