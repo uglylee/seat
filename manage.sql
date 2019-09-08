@@ -1,17 +1,17 @@
 /*
- Navicat MySQL Data Transfer
+ Navicat Premium Data Transfer
 
- Source Server         : localMonitor
+ Source Server         : mysql-seat
  Source Server Type    : MySQL
- Source Server Version : 50727
- Source Host           : localhost:3306
+ Source Server Version : 50645
+ Source Host           : localhost:33066
  Source Schema         : manage
 
  Target Server Type    : MySQL
- Target Server Version : 50727
+ Target Server Version : 50645
  File Encoding         : 65001
 
- Date: 19/08/2019 12:46:46
+ Date: 08/09/2019 13:51:01
 */
 
 SET NAMES utf8mb4;
@@ -274,7 +274,7 @@ CREATE TABLE `record` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `de` (`department_id`) USING BTREE,
   CONSTRAINT `de` FOREIGN KEY (`department_id`) REFERENCES `department` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2350 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=2352 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 -- ----------------------------
 -- Records of record
@@ -2583,6 +2583,8 @@ INSERT INTO `record` VALUES (2346, 1, '2019001701', '谷乾坤', 10, '33', '2019
 INSERT INTO `record` VALUES (2347, 2, '2019001701', '谷乾坤', 10, '33', '2019-08-19 02:56:37', 0, '删除座位');
 INSERT INTO `record` VALUES (2348, 1, '2019001701', '谷乾坤', 10, 'e4', '2019-08-19 03:14:30', 0, '新增工位');
 INSERT INTO `record` VALUES (2349, 2, '2019001701', '谷乾坤', 10, 'e4', '2019-08-19 03:14:33', 0, '删除座位');
+INSERT INTO `record` VALUES (2350, 1, '2019000001', 'admin', 1, '4', '2019-09-08 05:50:08', 0, '新增工位');
+INSERT INTO `record` VALUES (2351, 2, '2019000001', 'admin', 1, '4', '2019-09-08 05:50:12', 0, '删除座位');
 COMMIT;
 
 -- ----------------------------
@@ -4082,7 +4084,7 @@ CREATE TABLE `users` (
 -- Records of users
 -- ----------------------------
 BEGIN;
-INSERT INTO `users` VALUES (1, '赵李', NULL, 26, '2019-07-03', '2019-07-23', NULL, 1, '2019000001', NULL, NULL, NULL, 1, '111111', 0, 1, 3);
+INSERT INTO `users` VALUES (1, 'admin', 'admin', 26, '2019-07-03', '2019-07-23', NULL, 1, '2019000001', NULL, NULL, NULL, 1, '123456', 0, 0, 19);
 INSERT INTO `users` VALUES (2, '龚静', NULL, NULL, '2019-07-03', NULL, '38166', 16, '201801779', NULL, NULL, NULL, 0, '123456', 3, 0, 3);
 INSERT INTO `users` VALUES (3, '吴欢', NULL, NULL, '2019-07-03', NULL, '38167', 16, '2019000609', NULL, NULL, NULL, 1, '123456', 3, 0, 3);
 INSERT INTO `users` VALUES (4, '张晨雨', NULL, NULL, '2019-07-03', NULL, '38168', 16, '2019000553', NULL, NULL, NULL, 1, '123456', 3, 0, 3);

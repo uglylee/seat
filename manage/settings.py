@@ -29,11 +29,9 @@ ALLOWED_HOSTS = ['*']
 #SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS = {
-     # 'host':'redis-seat',
-     'host':'111.231.141.159',
-
-     'port': 6378,
-     'db': 4,
+      'host':'redis-seat',
+      'port': 6379,
+  #   'db': 4,
 #     # 'password': 'yxgw',
 #     # 'prefix': 'News_hodge',
      'socket_timeout': 10
@@ -91,22 +89,16 @@ WSGI_APPLICATION = 'manage.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '127.0.0.1',
+        'HOST': 'mysql-seat',
         'USER': 'root',
         'PASSWORD': '123456',
         'NAME': 'manage',
-        # 'USER': 'root',
-        # 'PASSWORD': 'seat',
-        # 'HOST': 'mysql-seat',
         'PORT': '3306',
         'OPTIONS': {
             'init_command':"SET foreign_key_checks = 0"
-
         }
     }
 }
-
-# SESSION_ENGINE='django.contrib.sessions.backends.cached_db'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

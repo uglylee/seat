@@ -1,0 +1,4 @@
+pymysql==0.9.3
+django==2.1.14
+requests
+django-redis-sessions

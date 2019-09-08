@@ -1,0 +1,24 @@
+if [ ! -d "$PWD/mysql-seat" ];
+then
+echo "------------------请输入信息---------------"
+else
+echo "存在mysql文件夹，请备份sql后删除目录mysql,sql与setup放置在同一层"
+exit
+fi
+
+docker run -d --name mysql-seat -e MYSQL_ROOT_PASSWORD=123456 -p 33066:3306 -v $PWD/mysql-seat:/var/lib/mysql mysql:5.6
+docker run -d --name redis-seat -p 6378:6379 redis
+sleep 20
+docker cp manage.sql mysql-seat:/
+docker exec -i mysql-seat /bin/bash <<'EOF'
+mysql -h localhost -uroot -p123456 <<'FF'
+CREATE DATABASE manage DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+use manage;
+set names utf8;
+source manage.sql;
+exit
+FF
+exit
+EOF
+docker run -d --name web-seat -p 8000:8000 --link mysql-seat --link redis-seat uglylee/seat sh /seat/start
+echo "END"
